@@ -158,6 +158,20 @@
         };
 
         try {
+          // İlk olarak GET isteği ile test et
+          const testResponse = await fetch(
+            "https://script.google.com/macros/s/AKfycbxyMCc4k9qROkH_fMIBMOERpne8go3zSYDDqMlkG1sOvuBXQgXYgUtmW7Tee3aUXGCU2A/exec",
+            {
+              method: "GET",
+              mode: 'cors'
+            }
+          );
+
+          if (!testResponse.ok) {
+            throw new Error("Apps Script bağlantısı başarısız");
+          }
+
+          // Şimdi POST isteği gönder
           const response = await fetch(
             "https://script.google.com/macros/s/AKfycbxyMCc4k9qROkH_fMIBMOERpne8go3zSYDDqMlkG1sOvuBXQgXYgUtmW7Tee3aUXGCU2A/exec",
             {
@@ -166,13 +180,17 @@
               headers: {
                 "Content-Type": "application/json",
               },
-              mode: "cors",
+              mode: 'cors'
             }
           );
 
+          if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+          }
+
           const result = await response.json();
 
-          if (response.ok && result.result === "success") {
+          if (result.result === "success") {
             // Başarı kutusunu göster
             sonuc.className = "";
             sonuc.innerText = "✅ Kayıt başarıyla gönderildi!";

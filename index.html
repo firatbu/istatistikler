@@ -127,7 +127,7 @@
     </div>
 
     <script>
-      async function gonder() {
+    async function gonder() {
         const dropdown1El = document.getElementById("dropdown1");
         const dropdown2El = document.getElementById("dropdown2");
         const dropdown3El = document.getElementById("dropdown3");
@@ -142,84 +142,66 @@
 
         // Zorunlu alan kontrolü
         if (!dropdown1 || !dropdown2 || !dropdown3) {
-          alert("Lütfen tüm dropdown seçimlerini yapınız.");
-          return;
+            alert("Lütfen Şube, Hizmet Türü ve Konuşma Konusu alanlarını doldurunuz.");
+            return;
         }
 
-        // Butonu devre dışı bırak
         gonderBtn.disabled = true;
         gonderBtn.textContent = "Gönderiliyor...";
 
         const data = {
-          dropdown1,
-          dropdown2,
-          dropdown3,
-          notlar,
+            dropdown1,
+            dropdown2,
+            dropdown3,
+            notlar,
         };
 
         try {
-          // İlk olarak GET isteği ile test et
-          const testResponse = await fetch(
-            "https://script.google.com/macros/s/AKfycbxyMCc4k9qROkH_fMIBMOERpne8go3zSYDDqMlkG1sOvuBXQgXYgUtmW7Tee3aUXGCU2A/exec",
-            {
-              method: "GET",
-              mode: 'cors'
+            // Sadece POST isteği gönderiyoruz.
+            const response = await fetch(
+                "https://script.google.com/macros/s/AKfycbxyMCc4k9qROkH_fMIBMOERpne8go3zSYDDqMlkG1sOvuBXQgXYgUtmW7Tee3aUXGCU2A/exec", //
+                {
+                    method: "POST",
+                    // 'mode: "cors"' yazmaya gerek yoktur, fetch API için varsayılan değerdir.
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Sunucu Hatası: ${response.status}`);
             }
-          );
 
-          if (!testResponse.ok) {
-            throw new Error("Apps Script bağlantısı başarısız");
-          }
+            const result = await response.json();
 
-          // Şimdi POST isteği gönder
-          const response = await fetch(
-            "https://script.google.com/macros/s/AKfycbxyMCc4k9qROkH_fMIBMOERpne8go3zSYDDqMlkG1sOvuBXQgXYgUtmW7Tee3aUXGCU2A/exec",
-            {
-              method: "POST",
-              body: JSON.stringify(data),
-              headers: {
-                "Content-Type": "application/json",
-              },
-              mode: 'cors'
+            if (result.result === "success") {
+                sonuc.className = "";
+                sonuc.innerText = "✅ Kayıt başarıyla gönderildi!";
+                sonuc.style.display = "block";
+
+                setTimeout(() => {
+                    sonuc.style.display = "none";
+                }, 3000);
+
+                dropdown1El.selectedIndex = 0;
+                dropdown2El.selectedIndex = 0;
+                dropdown3El.selectedIndex = 0;
+                notlarEl.value = "";
+            } else {
+                throw new Error(result.message || "Bilinmeyen bir hata oluştu.");
             }
-          );
-
-          if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
-          }
-
-          const result = await response.json();
-
-          if (result.result === "success") {
-            // Başarı kutusunu göster
-            sonuc.className = "";
-            sonuc.innerText = "✅ Kayıt başarıyla gönderildi!";
-            sonuc.style.display = "block";
-
-            // 3 saniye sonra kutuyu kapat
-            setTimeout(() => {
-              sonuc.style.display = "none";
-            }, 3000);
-
-            // Formu sıfırla
-            dropdown1El.selectedIndex = 0;
-            dropdown2El.selectedIndex = 0;
-            dropdown3El.selectedIndex = 0;
-            notlarEl.value = "";
-          } else {
-            throw new Error(result.message || "Bilinmeyen hata");
-          }
         } catch (error) {
-          console.error("Hata:", error);
-          sonuc.className = "error";
-          sonuc.innerText = "❌ Hata oluştu: " + error.message;
-          sonuc.style.display = "block";
+            console.error("Hata:", error);
+            sonuc.className = "error";
+            sonuc.innerText = "❌ Hata oluştu: " + error.message;
+            sonuc.style.display = "block";
         } finally {
-          // Butonu tekrar aktif et
-          gonderBtn.disabled = false;
-          gonderBtn.textContent = "Gönder";
+            gonderBtn.disabled = false;
+            gonderBtn.textContent = "Gönder";
         }
-      }
+    }
     </script>
   </body>
 </html>

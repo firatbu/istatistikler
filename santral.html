@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Çağrı Merkezi Formu</title>
+    <style>
+      body {
+        background-color: #f2f2f2;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .container {
+        background: white;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+      }
+
+      label {
+        font-weight: bold;
+        margin-top: 15px;
+        display: block;
+        color: #555;
+      }
+
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        margin-top: 5px;
+        font-size: 14px;
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      button {
+        margin-top: 25px;
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      #sonuc {
+        text-align: center;
+        margin-top: 20px;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 8px;
+        background-color: #e6ffed;
+        border: 1px solid #a0dca0;
+        color: #1a7f1a;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Formu Doldur</h2>
+
+      <label>Şube</label>
+      <select id="dropdown1">
+        <option value="" disabled selected>Seçiniz...</option>
+        <option value="Ataşehir">Ataşehir</option>
+        <option value="Altunizade">Altunizade</option>
+        <option value="Maslak">Maslak</option>
+      </select>
+
+      <label>Hizmet Türü</label>
+      <select id="dropdown2">
+        <option value="" disabled selected>Seçiniz...</option>
+        <option value="Randevu">Randevu</option>
+        <option value="Fiyat">Fiyat</option>
+      </select>
+
+      <label>Konuşma Konusu</label>
+      <select id="dropdown3">
+        <option value="" disabled selected>Seçiniz...</option>
+        <option value="Genel Bilgi">Genel Bilgi</option>
+      </select>
+
+      <label>Notlar</label>
+      <h5 style="margin: 0; text-align: left; color: #7a7a7a">
+        Açıklama alanı zorunlu değildir
+      </h5>
+      <textarea id="notlar" rows="4" placeholder="Açıklama girin..."></textarea>
+
+      <button onclick="gonder()">Gönder</button>
+      <p id="sonuc">Mesaj</p>
+    </div>
+
+    <script>
+      async function gonder() {
+        const dropdown1El = document.getElementById("dropdown1");
+        const dropdown2El = document.getElementById("dropdown2");
+        const dropdown3El = document.getElementById("dropdown3");
+        const notlarEl = document.getElementById("notlar");
+        const sonuc = document.getElementById("sonuc");
+
+        const dropdown1 = dropdown1El.value;
+        const dropdown2 = dropdown2El.value;
+        const dropdown3 = dropdown3El.value;
+        const notlar = notlarEl.value;
+
+        // Zorunlu alan kontrolü
+        if (!dropdown1 || !dropdown2 || !dropdown3) {
+          alert("Lütfen tüm dropdown seçimlerini yapınız.");
+          return;
+        }
+
+        const data = {
+          dropdown1,
+          dropdown2,
+          dropdown3,
+          notlar,
+        };
+
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbxyMCc4k9qROkH_fMIBMOERpne8go3zSYDDqMlkG1sOvuBXQgXYgUtmW7Tee3aUXGCU2A/exec",
+          {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (response.ok) {
+          // Başarı kutusunu göster
+          sonuc.innerText = "✅ Kayıt başarıyla gönderildi!";
+          sonuc.style.display = "block";
+
+          // 3 saniye sonra kutuyu kapat
+          setTimeout(() => {
+            sonuc.innerText = "";
+            sonuc.style.display = "none";
+          }, 3000);
+
+          // Formu sıfırla
+          dropdown1El.selectedIndex = 0;
+          dropdown2El.selectedIndex = 0;
+          dropdown3El.selectedIndex = 0;
+          notlarEl.value = "";
+        } else {
+          sonuc.innerText = "❌ Hata oluştu.";
+          sonuc.style.color = "red";
+          sonuc.style.display = "block";
+        }
+      }
+    </script>
+  </body>
+</html>
